@@ -1,5 +1,5 @@
 
-# 你来的真早（You're really early）
+# 你来的可真早（You're really early）
 - 仓库施工中，内容未完成，晚些再来吧...
 <br> Repository under construction – content not yet complete. Please check back later...
 <br> ![](https://github.com/INKPTR-STUDIO/oled-display-ssd1306/blob/main/Public_Images/~NothingHere.jpg)
