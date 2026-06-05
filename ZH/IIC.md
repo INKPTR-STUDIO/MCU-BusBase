@@ -94,12 +94,13 @@ void IIC_Stop(void) {
 |:-:|:-:|:-|
 |1|SDA = ACK|在 SDA 上准备应答的电平|
 |2|SCL = 1|在 SCL 上产生一个高电平脉冲|
-|3|SCL = 0|结束 SCL 上的高电平脉冲脉冲|
+|3|SCL = 0|结束 SCL 上的高电平脉冲|
 
 代码形式参考：
 ```C++
 void IIC_SendACK(u8 ACK) {
-    SDA = (ACK)? 1 : 0;   // <-- 这样写是因为用的是 ACK 的真值，即只看 ACK = 0 或 ACK ≠ 0。直接的 SDA = ACK 写法不适配或可能导致引脚寄存器工作异常，尤其是 ACK > 1 时，同下
+    if(ACK) {SDA = 1;}  // <-- 这样写是因为用的是 ACK 的真值，即只看 ACK = 0 或 ACK ≠ 0。直接的 SDA = ACK 写法不适配或可能导致引脚寄存器工作异常，尤其是 ACK > 1 时，同下
+    else {SDA = 0;}
     SCL = 1;
     SCL = 0;
 }
@@ -156,7 +157,8 @@ void IIC_SendByte(u8 Byte) {
     u8 i;
 
     for(i = 0 ; i < 8 ; i++) {
-        SDA = (Byte & 0x80)? 1 : 0;
+        if(Byte & 0x80) {SDA = 1;}
+        else {SDA = 0;}
         SCL = 1;
         SCL = 0;
         Byte = Byte << 1;
@@ -244,12 +246,14 @@ void IIC_Delay10us(void) {
 }
 
 void IIC_EditSCL(u8 Dat) {
-    SCL = (Dat)? 1 : 0;
+    if(Dat) {SCL = 1;}
+    else {SCL = 0;}
     IIC_Delay10us();
 }
 
 void IIC_EditSDA(u8 Dat) {
-    SDA = (Dat)? 1 : 0;
+    if(Dat) {SDA = 1;}
+    else {SDA = 0;}
     IIC_Delay10us();
 }
 ```
@@ -268,11 +272,13 @@ void IIC_Delay10us(void) {
 
 // 翻转速度控制引脚封装
 void IIC_EditSCL(u8 Dat) {
-    SCL = (Dat)? 1 : 0;
+    if(Dat) {SCL = 1;}
+    else {SCL = 0;}
     IIC_Delay10us();
 }
 void IIC_EditSDA(u8 Dat) {
-    SDA = (Dat)? 1 : 0;
+    if(Dat) {SDA = 1;}
+    else {SDA = 0;}
     IIC_Delay10us();
 }
 
