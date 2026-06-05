@@ -1,13 +1,12 @@
-0
 <!--
 # 注意（Attention）
-- 当前版本出现了一点问题！如需相关内容，建议[回溯至版本 x](http://) ！
-- There's a small problem with the current version! If you need it, please consider [rolling back to version x](http://) !
-<br> ![](https://github.com/INKPTR-STUDIO/oled-display-ssd1306/blob/main/Public_Images/~ERROR.jpg)
+- 最新版本出现了一点小问题！如需相关内容，建议[回溯至版本 x](http://) ！
+<br> There's a small problem with the current version! If you need it, please consider [rolling back to version x](http://) !
 -->
 
 <!--
 # 内容概览（Overview）
+- IIC：[中文](http://)  /  [English](http://)
 -->
 
 <!--
