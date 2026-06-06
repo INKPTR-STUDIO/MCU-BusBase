@@ -15,7 +15,7 @@ The IIC bus has two lines:
 <br>(2) Data line SDA
 <br>Multiple slave devices are connected in parallel on the bus. For SCL, in most applications, the slave does not actively control SCL, but the IIC specification allows the slave to pull SCL low to make the master wait. This article does not discuss that; thus, the slave is always in a high-impedance state, and only the master provides a synchronization signal to each slave by sending low-level pulses. For SDA, the transmitting side can either pull the line low or release it to a high level through high impedance, while the receiving side maintains a high-impedance state to read the level. Therefore, SCL carries only a unidirectional signal from the master, while SDA carries a bidirectional signal.
 <br>Both SCL and SDA are open-drain structures. It is recommended to add pull-up resistors on both lines to stabilize the high level when the pins are released, and to limit the current flowing into the chip with an appropriate resistance value. (In typical 3.3V-5V applications, a 4.7kΩ resistor is recommended.)
-<br>![IIC_Bus](https://github.com/INKPTR-STUDIO/oled-display-ssd1306/blob/main/Images/IIC_Bus.png)
+<br>![IIC_Bus](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/Images/IIC_Bus.png)
 <br><br><br>
 
 
@@ -29,7 +29,7 @@ In terms of level logic, both master and slave devices sample SDA when SCL is hi
 - When SCL is high, a level transition on SDA is considered a start or stop command. A falling edge on SDA is a start command, and a rising edge on SDA is a stop command. (In fact, these start and stop commands are exactly the start and stop signal timings described below.)
 
 These level logic patterns combine into six types of timing: Start Signal, Stop Signal, Send Acknowledge, Receive Acknowledge, Send Byte, Receive Byte. By combining the required timings according to the device's communication requirements, IIC communication can be achieved. The timing details are explained below.
-<br>![IIC_Timing](https://github.com/INKPTR-STUDIO/oled-display-ssd1306/blob/main/Images/IIC_Timing.png)
+<br>![IIC_Timing](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/Images/IIC_Timing.png)
 <br>
 
 
