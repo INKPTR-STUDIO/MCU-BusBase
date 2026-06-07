@@ -1,7 +1,21 @@
 # Table of Contents
 1. Physical Bus
 2. Communication Timing
-3. Supplementary Notes and Summary
+
+    - 2.1 Start Signal
+    - 2.2 Stop Signal
+    - 2.3 Send Acknowledge
+    - 2.4 Receive Acknowledge
+    - 2.5 Send Byte
+    - 2.6 Receive Byte
+
+3. Supplementary Notes and Final Reference Code
+
+    - 3.1 Explanation of the Initial State of SCL in Some Timings
+    - 3.2 Receive Acknowledge Timeout Optimization
+    - 3.3 Communication Speed Adaptation Optimization
+    - 3.4 Final Reference Code
+
 <br><br><br>
 
 
@@ -10,11 +24,13 @@
 
 
 # 1. Physical Bus
-The IIC bus has two lines:
-<br>(1) Clock line SCL
-<br>(2) Data line SDA
-<br>Multiple slave devices are connected in parallel on the bus. For SCL, in most applications, the slave does not actively control SCL, but the IIC specification allows the slave to pull SCL low to make the master wait. This article does not discuss that; thus, the slave is always in a high-impedance state, and only the master provides a synchronization signal to each slave by sending low-level pulses. For SDA, the transmitting side can either pull the line low or release it to a high level through high impedance, while the receiving side maintains a high-impedance state to read the level. Therefore, SCL carries only a unidirectional signal from the master, while SDA carries a bidirectional signal.
-<br>Both SCL and SDA are open-drain structures. It is recommended to add pull-up resistors on both lines to stabilize the high level when the pins are released, and to limit the current flowing into the chip with an appropriate resistance value. (In typical 3.3V-5V applications, a 4.7kΩ resistor is recommended.)
+The IIC has two physical bus lines:
+<br>(1) Clock line SCL: Clock signal provided by master
+<br>(2) Data line SDA: Data exchange and command transmission are clock-synchronized.
+<br>Both SCL and SDA on the master are in open-drain mode. It is recommended to add pull-up resistors on both lines to stabilize the high level when the pins are released, and to limit the current flowing into the chip with an appropriate resistance value. (In typical 3.3V-5V applications, a 4.7kΩ resistor is recommended.)
+<br>Multiple slave devices are connected in parallel on the bus. Normally, the master sends a slave address to select a specific device. Only the addressed slave responds; others ignore the bus.
+<br>For SCL, in most applications, the slave does not actively control SCL, but the IIC specification allows the slave to pull SCL low to make the master wait. This article does not discuss that; thus, the slave is always in a high-impedance state, and only the master provides a synchronization signal to each slave by sending low-level pulses.
+<br>For SDA, the transmitting side can either pull the line low or release it to a high level through high impedance, while the receiving side maintains a high-impedance state to read the level. Therefore, SCL carries only a unidirectional signal from the master, while SDA carries a bidirectional signal.
 <br>![IIC_Bus](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/Images/IIC_Bus.png)
 <br><br><br>
 
@@ -24,9 +40,10 @@ The IIC bus has two lines:
 
 
 # 2. Communication Timing
-In terms of level logic, both master and slave devices sample SDA when SCL is high, and then interpret it as data or commands depending on the situation:
+In terms of level logic,  the receiver sample SDA when SCL is high, and then interpret it as data or commands depending on the situation:
 - When SCL is high, if SDA remains unchanged, that is considered data transmission. SDA being high means a 1 is transmitted, and SDA being low means a 0 is transmitted.
 - When SCL is high, a level transition on SDA is considered a start or stop command. A falling edge on SDA is a start command, and a rising edge on SDA is a stop command. (In fact, these start and stop commands are exactly the start and stop signal timings described below.)
+- When SCL is low, the transmitter is allowed to change SDA, setting up the intended logic level or transition that will be sampled or recognized when SCL goes high.
 
 These level logic patterns combine into six types of timing: Start Signal, Stop Signal, Send Acknowledge, Receive Acknowledge, Send Byte, Receive Byte. By combining the required timings according to the device's communication requirements, IIC communication can be achieved. The timing details are explained below.
 <br>![IIC_Timing](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/Images/IIC_Timing.png)
@@ -205,7 +222,7 @@ u8 IIC_ReceiveByte(void) {
 
 
 
-# 3. Supplementary Notes and Summary
+# 3. Supplementary Notes and Final Reference Code
 ## 3.1 Explanation of the Initial State of SCL in Some Timings
 In the above examples, the four timings—Send Acknowledge, Receive Acknowledge, Send Byte, and Receive Byte—do not initialize SCL to 0 at the beginning. This is because in actual use, these four timings are only used immediately after other timings **except the Stop Signal timing**, and those timings all restore SCL to a low level at the end, so it does not matter.
 <br>
@@ -225,7 +242,7 @@ u8 IIC_ReceiveACK(void) {
         ACK = SDA;
         if(!ACK) {break;}   // <-- Acknowledge (ACK = 0) is used here as the sign that the slave is ready
 
-        IIC_Delay10us();    // <-- The delay function can be modified here, but too long a delay will seriously affect the communication speed. In this example, assuming a 10us delay, the code will check SDA every 10us. If an acknowledge is received, it breaks out of the polling loop early, and the function eventually returns acknowledge (return 0); otherwise, the polling loop ends after 200 iterations, with a total timeout of 200 * 10us = 2ms, and the function returns not-acknowledge (return 1).
+        IIC_Delay5us();    // <-- The delay function can be modified here, but too long a delay will seriously affect the communication speed. In this example, assuming a 5us delay, the code will check SDA every 5us. If an acknowledge is received, it breaks out of the polling loop early, and the function eventually returns acknowledge (return 0); otherwise, the polling loop ends after 200 iterations, with a total timeout of 200 * 5us = 1ms, and the function returns not-acknowledge (return 1).
 
     }
     SCL = 0;
@@ -241,30 +258,43 @@ Due to the RC characteristics introduced by device interfaces and wiring, the le
 <br>To ensure both sufficient speed and reliability of communication, in addition to keeping wiring as short as possible, protecting the bus from electromagnetic interference, and selecting appropriate pull-up resistors based on the bus load, it is also necessary to actively limit the pin operation speed from the microcontroller program.
 <br>Taking the standard mode of 100kHz supported by most devices as an example, you can add a 10us delay after each pin level change in the code. The pin functions can be encapsulated as follows:
 ```C++
-void IIC_Delay10us(void) {
+void IIC_Delay5us(void) {
     // 10us delay code
 }
 
 void IIC_EditSCL(u8 Dat) {
     if(Dat) {SCL = 1;}
     else {SCL = 0;}
-    IIC_Delay10us();
+    IIC_Delay5us();    // <-- First change the pin level, then delay. This sequence uses the delay to wait for the level to stabilize, so that the immediately following level-sampling code can sample a more definite level. The same applies below.
 }
 
 void IIC_EditSDA(u8 Dat) {
     if(Dat) {SDA = 1;}
     else {SDA = 0;}
-    IIC_Delay10us();
+    IIC_Delay5us();
 }
 ```
 <br>
 
 
 
-## 3.4 Final Code Reference
+## 3.4 Final Reference Code
+```C++
+#ifndef IIC_H
+#define IIC_H
+
+void IIC_Start(void);           // Start Signal
+void IIC_Stop(void);            // Stop Signal
+void IIC_SendACK(u8 ACK);       // Send Acknowledge
+u8 IIC_ReceiveACK(void);        // Receive Acknowledge
+void IIC_SendByte(u8 Byte);     // Send Byte
+u8 IIC_ReceiveByte(void);       // Receive Byte
+
+#endif
+```
 ```C++
 // Delay function for controlling the level transition speed
-void IIC_Delay10us(void) {
+void IIC_Delay5us(void) {
     // 10us delay code
 }
 
@@ -274,12 +304,12 @@ void IIC_Delay10us(void) {
 void IIC_EditSCL(u8 Dat) {
     if(Dat) {SCL = 1;}
     else {SCL = 0;}
-    IIC_Delay10us();
+    IIC_Delay5us();
 }
 void IIC_EditSDA(u8 Dat) {
     if(Dat) {SDA = 1;}
     else {SDA = 0;}
-    IIC_Delay10us();
+    IIC_Delay5us();
 }
 
 
@@ -316,7 +346,7 @@ u8 IIC_ReceiveACK(void) {
     while(TimeOut--) {
         ACK = SDA;
         if(!ACK) {break;}
-        IIC_Delay10us();
+        IIC_Delay5us();
     }
     IIC_EditSCL(0);
     return ACK;
