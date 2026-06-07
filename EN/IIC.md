@@ -256,7 +256,7 @@ u8 IIC_ReceiveACK(void) {
 ## 3.3 Communication Speed Adaptation Optimization
 Due to the RC characteristics introduced by device interfaces and wiring, the level on the bus requires a certain amount of time to stabilize after being toggled by the master or slave. The logic processing unit of the slave also has an upper limit on signal processing speed. Both are the main factors limiting IIC communication speed.
 <br>To ensure both sufficient speed and reliability of communication, in addition to keeping wiring as short as possible, protecting the bus from electromagnetic interference, and selecting appropriate pull-up resistors based on the bus load, it is also necessary to actively limit the pin operation speed from the microcontroller program.
-<br>Taking the standard mode of 100kHz supported by most devices as an example, you can add a 10us delay after each pin level change in the code. The pin functions can be encapsulated as follows:
+<br>Taking the standard mode of 100kHz supported by most devices as an example, you can add a 5us delay after each pin level change in the code. The pin functions can be encapsulated as follows:
 ```C++
 void IIC_Delay5us(void) {
     // 10us delay code
