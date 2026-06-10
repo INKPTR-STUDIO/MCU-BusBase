@@ -6,6 +6,7 @@
 
 # 内容概览（Overview）
 - IIC：[中文](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/ZH/IIC.md) / [English](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/EN/IIC.md)
+- SPI：[中文](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/ZH/SPI.md) / [English](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/EN/SPI.md)
 
 # 备注（Note）
 - 中英双语描述内容一致，根据您期望的语言使用其中一个即可。内容基于中文编写，英文版本为 AI 翻译；个人理解或翻译可能出现纰漏，使用时请注意校对！
