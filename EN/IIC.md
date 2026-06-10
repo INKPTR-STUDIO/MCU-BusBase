@@ -46,6 +46,7 @@ In terms of level logic,  the receiver sample SDA when SCL is high, and then int
 - When SCL is low, the transmitter is allowed to change SDA, setting up the intended logic level or transition that will be sampled or recognized when SCL goes high.
 
 These level logic patterns combine into six types of timing: Start Signal, Stop Signal, Send Acknowledge, Receive Acknowledge, Send Byte, Receive Byte. By combining the required timings according to the device's communication requirements, IIC communication can be achieved. The timing details are explained below.
+<br>Here it is assumed that the prefix "T_" denotes host bytes sent by the host, and "R_" denotes slave bytes received by the host. Same below.
 <br>![IIC_Timing](https://github.com/INKPTR-STUDIO/MCU-BusBase/blob/main/Images/IIC_Timing.png)
 <br>
 
@@ -254,7 +255,7 @@ u8 IIC_ReceiveACK(void) {
 
 
 ## 3.3 Communication Speed Adaptation Optimization
-Due to the RC characteristics introduced by device interfaces and wiring, the level on the bus requires a certain amount of time to stabilize after being toggled by the master or slave. The logic processing unit of the slave also has an upper limit on signal processing speed. Both are the main factors limiting IIC communication speed.
+Due to the RC characteristics introduced by device interfaces and wiring, the level on the bus requires a certain amount of time to stabilize after being toggled by the master or slave. The logic processing unit of the slave also has an upper limit on signal processing speed. Both are the main factors limiting IIC communication speed.(Unless the host's own level-switching speed is already sufficiently slow. If the host speed is sufficiently slow, the optimizations described in this section can be ignored.)
 <br>To ensure both sufficient speed and reliability of communication, in addition to keeping wiring as short as possible, protecting the bus from electromagnetic interference, and selecting appropriate pull-up resistors based on the bus load, it is also necessary to actively limit the pin operation speed from the microcontroller program.
 <br>Taking the standard mode of 100kHz supported by most devices as an example, you can add a 5us delay after each pin level change in the code. The pin functions can be encapsulated as follows:
 ```C++
